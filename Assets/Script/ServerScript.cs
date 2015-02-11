@@ -13,13 +13,14 @@ public class ServerScript : MonoBehaviour {
     public void StartServer()
     {
        
-        Network.incomingPassword = "password";
-        Network.InitializeServer(3, 25000, false);
-
+        
 
     }
     public void StartServerLocal()
     {
+        Network.incomingPassword = "password";
+        Network.InitializeServer(3, remotePort, false);
+
         Debug.Log("MyIP " + Network.player.ipAddress);
         sender = new UdpClient(remotePort, AddressFamily.InterNetwork);
 
@@ -27,16 +28,18 @@ public class ServerScript : MonoBehaviour {
 
         sender.Connect(groupEP);
         InvokeRepeating("BroadcastingIP", 0, 0.5f);
+        
     }
 
     private void BroadcastingIP()
     {
 
-        string customMessage = "MyGame" + "*" + Network.player.ipAddress;
+        string customMessage = Network.player.ipAddress;
 
         sender.Send(Encoding.ASCII.GetBytes(customMessage), customMessage.Length);
         Debug.Log("Broadcasting");
     }
+
 
     public void StartListening()
     {
@@ -61,14 +64,16 @@ public class ServerScript : MonoBehaviour {
         if (receiver != null)
         {
             received = receiver.EndReceive(ar, ref receiveIPGroup);
+            string message = Encoding.ASCII.GetString(received);
+            Debug.Log(message);
+            Network.Connect(message, "password");
         }
         else
         {
             return;
         }
-        receiver.BeginReceive(new AsyncCallback(ReceiveData), null);
-        string message = Encoding.ASCII.GetString(received);
-        Debug.Log(message);
+        //receiver.BeginReceive(new AsyncCallback(ReceiveData), null);
+        
     }
 
     public void OnMasterServerEvent(MasterServerEvent msEvent)
@@ -102,4 +107,18 @@ public class ServerScript : MonoBehaviour {
         MasterServer.RegisterHost("TestNetwork", "game", "comments here!");
 
     }
+
+    public void OnConnectedToServer()
+    {
+        Debug.Log("Connected to server!");
+    }
+
+    
+    public void OnPlayerConnected(NetworkPlayer player)
+    {
+        Debug.Log("Player Connected " + player.ipAddress);
+        CancelInvoke("BroadcastIP");
+    }
+
+
 }
