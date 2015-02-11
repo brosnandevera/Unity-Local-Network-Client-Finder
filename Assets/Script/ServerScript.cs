@@ -8,8 +8,8 @@ public class ServerScript : MonoBehaviour {
 
     UdpClient sender;
     UdpClient receiver;
-    int remotePort = 19784;
-
+    int remotePort = 19783;
+    int remotePort2 = 19782;
     public void StartServer()
     {
        
@@ -19,17 +19,24 @@ public class ServerScript : MonoBehaviour {
     public void StartServerLocal()
     {
         Network.incomingPassword = "password";
-        Network.InitializeServer(3, remotePort, false);
+        Network.InitializeServer(3, remotePort2, false);
 
         Debug.Log("MyIP " + Network.player.ipAddress);
         sender = new UdpClient(remotePort, AddressFamily.InterNetwork);
 
         IPEndPoint groupEP = new IPEndPoint(IPAddress.Broadcast, remotePort);
-
+        
         sender.Connect(groupEP);
         InvokeRepeating("BroadcastingIP", 0, 0.5f);
         
     }
+
+    public void OnApplicationQuit()
+    {
+        if(sender != null) sender.Close();
+        if (receiver != null) receiver.Close();
+    }
+    
 
     private void BroadcastingIP()
     {
@@ -66,7 +73,7 @@ public class ServerScript : MonoBehaviour {
             received = receiver.EndReceive(ar, ref receiveIPGroup);
             string message = Encoding.ASCII.GetString(received);
             Debug.Log(message);
-            Network.Connect(message, "password");
+            Network.Connect(message, remotePort2);
         }
         else
         {
