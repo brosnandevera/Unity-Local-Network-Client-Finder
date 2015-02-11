@@ -4,12 +4,21 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using System;
+
+
+
 public class ServerScript : MonoBehaviour {
 
+
+    private string serverIP;
+    private bool hasServerIP = false;
     UdpClient sender;
     UdpClient receiver;
     int remotePort = 19783;
     int remotePort2 = 19782;
+
+
+
     public void StartServer()
     {
        
@@ -71,16 +80,30 @@ public class ServerScript : MonoBehaviour {
         if (receiver != null)
         {
             received = receiver.EndReceive(ar, ref receiveIPGroup);
-            string message = Encoding.ASCII.GetString(received);
-            Debug.Log(message);
-            Network.Connect(message, remotePort2);
+            
+
         }
         else
         {
             return;
         }
+
+
+        serverIP = Encoding.ASCII.GetString(received);
+        hasServerIP = true;
+        Debug.Log(serverIP);
+
         //receiver.BeginReceive(new AsyncCallback(ReceiveData), null);
-        
+    }
+
+
+    private void Update()
+    {
+        if (hasServerIP)
+        {
+            hasServerIP = false;
+            Network.Connect(serverIP, remotePort2, "password");
+        }
     }
 
     public void OnMasterServerEvent(MasterServerEvent msEvent)
@@ -124,7 +147,7 @@ public class ServerScript : MonoBehaviour {
     public void OnPlayerConnected(NetworkPlayer player)
     {
         Debug.Log("Player Connected " + player.ipAddress);
-        CancelInvoke("BroadcastIP");
+        CancelInvoke();
     }
 
 
