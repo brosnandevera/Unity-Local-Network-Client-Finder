@@ -26,18 +26,19 @@ public class CubeMover : MonoBehaviour {
 
     public void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
+        Debug.Log("steaming!");
         if (stream.isWriting)
         {
-           float val =  testVal;
-           stream.Serialize(ref val);
+           //float val =  testVal;
+           stream.Serialize(ref testVal);
            
         }
         else
         {
             //reading
-            float val2 = 0;
-            stream.Serialize(ref val2);
-            Debug.Log("Lol "+ testVal);
+            //float val2 = 0;
+            stream.Serialize(ref testVal);
+            Debug.Log("Lol " + testVal);
         }
     }
 
