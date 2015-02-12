@@ -24,7 +24,7 @@ public class CubeMover : MonoBehaviour {
        
 	}
 
-    public void OnSerializeNetworkView(NetworkMessageInfo info, BitStream stream)
+    public void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
     {
         if (stream.isWriting)
         {
